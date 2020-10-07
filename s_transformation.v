@@ -21,26 +21,40 @@
 
 
 module s_transformation(
-input Clk
+input Clk,
+input wire [7:0] In
 );
-// Key 2301(10110001 ) for 0123 (00011011) (0-2, 1-3, 2-0, 3-1)
+// Key 2301(10110001 ) for 0123 (00011011) (0-2, 1-3, 2-1, 3-0)
 reg [7:0] registr;
-wire [7:0] In = {2'b10, 2'b11, 2'b01, 2'b00};//2310 (10110100)
 reg [1:0] Ost;
-integer i;
+integer i = 0;
 always @(posedge Clk)
-begin
-  for (i= 0; i< 4; i=i+1)//4 blocks for 2 bites
     begin
-    if (In[i] == 2'b11)
-        Ost <= 2'b01; //3-1
-    else
-        case(In[i])
-        2'b00: Ost <= 2'b10; // if 0, then 2
-        2'b01: Ost <= 2'b11; //if 1, then 3
-        2'b11: Ost <= 2'b00; //2-0
+    if (i<=8)
+    begin
+        case({In[i],In[i+1]})
+        2'b10: begin
+               Ost <= 2'b01;//if 2 - 1
+               registr <= {registr, Ost};
+               end
+        2'b00: begin
+               Ost <= 2'b10; // if 0, then 2
+               registr <= {registr, Ost};
+               end
+        2'b01: begin
+               Ost <= 2'b11; //if 1, then 3
+               registr <= {registr, Ost};
+               end
+        2'b11: begin
+               Ost <= 2'b00; //3-0
+               registr <= {registr, Ost};
+               end
+        default: begin
+                 Ost <= 2'bx;
+                 registr <= {registr, Ost};
+                 end
         endcase
-    registr <= {registr [7:0], Ost};
+        i=i+2;
+        end
     end
-  end
 endmodule
