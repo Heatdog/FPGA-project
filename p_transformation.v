@@ -32,7 +32,7 @@ reg Ost, Ost2;
 wire [7:0] key = {2'b10, 2'b01, 2'b00, 2'b11};
 always @(posedge Clk)
 begin
-for (i = 0; i < 4; i = i+1)
+if (i<5)
     begin
         case (key[i])
         2'b01: begin
@@ -51,8 +51,13 @@ for (i = 0; i < 4; i = i+1)
                Ost <= In[3];
                Ost2 <= In[7];
                end
+         default: begin
+                  Ost <= 1'bx;
+                  Ost2 <= 1'bx;
+                  end
          endcase
-         registr <= {registr[7:0], Ost, Ost2};
+         registr <= {registr, Ost, Ost2};
+         i=i+1;
     end
 end
 endmodule
